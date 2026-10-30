@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Gửi Một Nửa Thế Giới - 20/10</title>
+
+    <!-- Import Font chữ cao cấp -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-top: #e0f2fe;     
+            --bg-bottom: #fbc2eb;  
+            --text-dark: #333333;
+            --text-accent: #d10053; 
+            --card-bg: rgba(255, 255, 255, 0.95);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden; 
+            font-family: 'Quicksand', sans-serif;
+            background: linear-gradient(135deg, var(--bg-top) 0%, var(--bg-bottom) 100%);
+            background-size: 200% 200%;
+            animation: gradientMove 15s ease infinite;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .corner-text {
+            position: absolute;
+            top: clamp(15px, 3vh, 30px);
+            left: clamp(15px, 4vw, 40px);
+            font-size: clamp(13px, 1.5vw, 16px);
+            color: #555;
+            font-style: italic;
+            font-weight: 500;
+            z-index: 100;
+            opacity: 0;
+            animation: fadeIn 2s forwards 0.5s;
+        }
+
+        .sound-btn {
+            position: absolute;
+            top: clamp(15px, 3vh, 30px);
+            right: clamp(15px, 4vw, 40px);
+            width: clamp(35px, 4vw, 45px);
+            height: clamp(35px, 4vw, 45px);
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid #fff;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(16px, 2vw, 20px);
+            cursor: pointer;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
+        .sound-btn:hover { background: #fff; transform: scale(1.1); }
+        .sound-btn.playing { animation: pulseSound 2s infinite alternate; }
+
+        @keyframes pulseSound {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.7); }
+            100% { box-shadow: 0 0 0 15px rgba(255, 255, 255, 0); }
+        }
+
+        #particles {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+        .particle {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            filter: blur(2px);
+            animation: floatUp 10s infinite linear;
+        }
+
+        #scene-1 {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            transition: all 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .text-group {
+            text-align: center;
+            margin-bottom: clamp(20px, 5vh, 50px);
+            padding: 0 20px;
+        }
+
+        .main-title {
+            font-size: clamp(24px, 4vw, 38px);
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(255,255,255,0.8);
+        }
+
+        .sub-title {
+            font-size: clamp(14px, 2vw, 18px);
+            color: #666;
+            font-weight: 500;
+        }
+
+        .hero-flower {
+            width: clamp(150px, 25vw, 250px);
+            height: clamp(150px, 25vw, 250px);
+            cursor: pointer;
+            filter: drop-shadow(0 15px 25px rgba(209, 0, 83, 0.4));
+            animation: pulseObj 3s ease-in-out infinite;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .hero-flower:hover {
+            transform: scale(1.1) rotate(5deg);
+            filter: drop-shadow(0 20px 30px rgba(209, 0, 83, 0.6));
+        }
+
+        #scene-2 {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 5;
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+
+        .garden-layer {
+            position: absolute;
+            bottom: -5vh; 
+            width: 100%;
+            height: 70vh;
+            pointer-events: none; 
+        }
+
+        .flower-item {
+            position: absolute;
+            transform-origin: bottom center;
+            opacity: 0;
+            transform: scale(0);
+            cursor: pointer;
+            pointer-events: auto; 
+            transition: filter 0.3s, transform 0.3s;
+        }
+        .flower-item:hover {
+            filter: brightness(1.2) drop-shadow(0 0 20px rgba(255, 255, 255, 0.9)) !important;
+            transform: scale(1.1) !important;
+        }
+
+        .garden-instruction {
+            position: absolute;
+            top: 15%;
+            width: 100%;
+            text-align: center;
+            padding: 0 20px;
+            pointer-events: none;
+        }
+
+        #backdrop {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px); 
+            z-index: 50;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        #message-card {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -40%) scale(0.8);
+            background: var(--card-bg);
+            width: 90vw;
+            max-width: 500px;
+            padding: clamp(25px, 5vw, 45px);
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.15), inset 0 0 0 1px rgba(255,255,255,1);
+            text-align: center;
+            z-index: 51;
+            display: none;
+            opacity: 0;
+            transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .card-icon { width: 50px; height: 50px; margin: 0 auto 15px; animation: popIn 0.6s 0.4s both; }
+        .card-greet { font-size: 16px; color: #555; font-weight: 600; margin-bottom: 10px; }
+        
+        .card-title {
+            font-family: 'Dancing Script', cursive;
+            font-size: clamp(32px, 8vw, 42px);
+            color: var(--text-accent);
+            line-height: 1.2;
+            margin-bottom: 20px;
+            opacity: 0;
+            min-height: 3.6em; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .card-body {
+            font-size: clamp(14px, 3.5vw, 16px);
+            color: #444;
+            line-height: 1.7;
+            text-align: justify;
+            margin-bottom: 25px;
+            min-height: 18vh; 
+        }
+
+        .card-footer { font-weight: 700; color: var(--text-accent); font-size: clamp(16px, 4vw, 18px); opacity: 0; transition: opacity 0.5s;}
+        .card-sign { text-align: right; font-style: italic; font-size: 14px; color: #888; margin-top: 8px; opacity: 0; transition: opacity 0.5s;}
+
+        #btn-group {
+            position: absolute;
+            bottom: clamp(20px, 5vh, 50px);
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: clamp(10px, 4vw, 25px);
+            z-index: 60;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s;
+        }
+
+        .action-btn {
+            padding: clamp(10px, 2vw, 14px) clamp(20px, 5vw, 35px);
+            border: none;
+            border-radius: 50px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: clamp(14px, 3vw, 16px);
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-accept {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #d10053;
+        }
+        .btn-accept:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(209, 0, 83, 0.3); }
+
+        .btn-deny {
+            background: #ffffff;
+            color: #555;
+            position: relative; 
+            z-index: 61;
+        }
+
+        @keyframes fadeIn { to { opacity: 1; } }
+        @keyframes pulseObj { 
+            0%, 100% { transform: translateY(0) scale(1); } 
+            50% { transform: translateY(-15px) scale(1.02); } 
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) scale(0); opacity: 0; }
+            20% { opacity: 1; }
+            80% { opacity: 1; }
+            100% { transform: translateY(-10vh) scale(1.5); opacity: 0; }
+        }
+        @keyframes popIn { 0% { transform: scale(0); } 70% { transform: scale(1.2); } 100% { transform: scale(1); } }
+        @keyframes bloom {
+            0% { transform: scale(0) translateY(50px); opacity: 0; }
+            70% { transform: scale(1.1) translateY(-10px); opacity: 1; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        @keyframes sway {
+            0%, 100% { transform: rotate(-4deg); }
+            50% { transform: rotate(4deg); }
+        }
+    </style>
+</head>
+<body>
+
+    <svg style="display: none;">
+        <defs>
+            <g id="svg-rose">
+                <path d="M50,90 C40,70 10,60 20,40 C30,20 60,30 50,50 C40,70 50,90 50,90 Z" fill="#ff4d6d"/>
+                <path d="M50,90 C60,70 90,60 80,40 C70,20 40,30 50,50 C60,70 50,90 50,90 Z" fill="#ff758f"/>
+                <path d="M50,90 C30,80 20,50 35,35 C50,20 70,30 65,50 C60,70 50,90 50,90 Z" fill="#c9184a"/>
+                <path d="M50,90 C40,80 40,50 50,45 C60,50 60,80 50,90 Z" fill="#a01a58"/>
+                <path d="M48,90 Q50,150 50,200" stroke="#2d6a4f" stroke-width="4" fill="none"/>
+                <path d="M50,130 Q30,120 20,110 Q40,110 50,140" fill="#40916c"/>
+                <path d="M50,150 Q70,130 80,120 Q60,130 50,160" fill="#40916c"/>
+            </g>
+            <g id="svg-tulip">
+                <path d="M50,90 C20,90 10,40 25,20 C35,40 45,50 50,60 C55,50 65,40 75,20 C90,40 80,90 50,90 Z" fill="#ff99c8"/>
+                <path d="M50,90 C35,90 30,50 40,30 C50,50 50,50 50,60 C50,50 50,50 60,30 C70,50 65,90 50,90 Z" fill="#fcf6bd"/>
+                <path d="M49,90 Q50,150 50,200" stroke="#52796f" stroke-width="4" fill="none"/>
+                <path d="M50,140 Q20,100 10,50 Q30,100 50,150" fill="#84a98c"/>
+                <path d="M50,160 Q80,120 90,70 Q70,120 50,170" fill="#84a98c"/>
+            </g>
+            <g id="svg-daisy">
+                <circle cx="50" cy="50" r="12" fill="#ffd166" z-index="2"/>
+                <path d="M50,38 Q40,10 50,0 Q60,10 50,38 Z" fill="#fff"/>
+                <path d="M50,62 Q40,90 50,100 Q60,90 50,62 Z" fill="#fff"/>
+                <path d="M38,50 Q10,40 0,50 Q10,60 38,50 Z" fill="#fff"/>
+                <path d="M62,50 Q90,40 100,50 Q90,60 62,50 Z" fill="#fff"/>
+                <path d="M42,42 Q20,20 15,15 Q30,25 42,42 Z" fill="#fff"/>
+                <path d="M58,58 Q80,80 85,85 Q70,75 58,58 Z" fill="#fff"/>
+                <path d="M42,58 Q20,80 15,85 Q30,75 42,58 Z" fill="#fff"/>
+                <path d="M58,42 Q80,20 85,15 Q70,25 58,42 Z" fill="#fff"/>
+                <path d="M49,62 Q50,120 50,180" stroke="#74c69d" stroke-width="3" fill="none"/>
+            </g>
+        </defs>
+    </svg>
+
+    <div class="corner-text">Dành tặng Gia Linh, một người thương...</div>
+    <div class="sound-btn" id="btn-sound" onclick="toggleSound()">🔔</div>
+    <div id="particles"></div>
+
+    <div id="scene-1">
+        <div class="text-group">
+            <h1 class="main-title">Từ một bông hoa nhỏ...</h1>
+            <p class="sub-title">Chạm vào bông hoa nếu bạn đang thấy tò mò</p>
+        </div>
+        <svg viewBox="0 0 100 200" class="hero-flower" onclick="enterGarden()">
+            <use href="#svg-rose"/>
+        </svg>
+    </div>
+
+    <div id="scene-2">
+        <div class="garden-instruction" id="garden-text">
+            <h1 class="main-title">Tới những bông hoa, nở rộ thành vườn hoa...</h1>
+            <p class="sub-title">Chạm vào một bông hoa bất kỳ để xem thông điệp</p>
+        </div>
+        <div class="garden-layer" id="garden-container"></div>
+    </div>
+
+    <div id="backdrop"></div>
+    <div id="message-card">
+        <svg viewBox="0 0 100 100" class="card-icon"><use href="#svg-rose" transform="scale(0.8) translate(10, 10)"/></svg>
+        <div class="card-greet">Gửi Gia Linh thương mến,</div>
+        <div class="card-title" id="m-title"></div> 
+        <div class="card-body" id="m-body"></div> 
+        <div class="card-footer" id="m-footer">Gửi Gia Linh thật nhiều yêu thương ♡</div>
+        <div class="card-sign" id="m-sign">người giấu tên</div>
+    </div>
+
+    <div id="btn-group">
+        <button class="action-btn btn-accept" onclick="acceptGift()">Cho tui xin</button>
+        <button class="action-btn btn-deny" id="btn-runaway">Chê hông xài</button>
+    </div>
+
+    <script>
+        // =========================================================
+        // ÂM THANH HỘP NHẠC (MUSIC BOX) ÊM DỊU, KHÔNG CHÓI TAI
+        // =========================================================
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        let audioCtx;
+        let isSoundOn = false;
+        let ambientInterval;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new AudioContext();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        // Đã giảm âm lượng tối đa (volume = 0.012) và đổi sang sóng 'triangle' êm tai như đàn hạc
+        function playChime(freq, type = 'triangle', volume = 0.05) {
+            if (!audioCtx || !isSoundOn) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            osc.type = type;
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(volume, audioCtx.currentTime + 0.08);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 2.5);
+            
+            osc.start(audioCtx.currentTime);
+            osc.stop(audioCtx.currentTime + 2.5);
+        }
+
+        // Thang âm trầm ấm, thư giãn (Lofi/Music box scale)
+        const musicBoxNotes = [220, 246.94, 277.18, 329.63, 369.99, 440, 493.88, 554.37];
+
+        function playRandomChime() {
+            const randomFreq = musicBoxNotes[Math.floor(Math.random() * musicBoxNotes.length)];
+            playChime(randomFreq, 'triangle', 0.012);
+        }
+
+        function playTypingSound() {
+            if (!audioCtx || !isSoundOn) return;
+            playChime(600 + Math.random() * 200, 'sine', 0.003);
+        }
+
+        function toggleSound() {
+            const btn = document.getElementById('btn-sound');
+            isSoundOn = !isSoundOn;
+            if(isSoundOn) {
+                initAudio();
+                btn.classList.add('playing');
+                playRandomChime();
+            } else {
+                btn.classList.remove('playing');
+            }
+        }
+
+        function startAmbientSound() {
+            ambientInterval = setInterval(() => {
+                if(isSoundOn && Math.random() > 0.4) {
+                    playRandomChime();
+                }
+            }, 2500);
+        }
+
+        // KHO LỜI CHÚC
+        const greetingsList = [
+            {
+                title: "Gửi cậu,<br>đóa hoa rực rỡ<br>của ngày hôm nay.",
+                body: "Người ta hay nói con gái là những đóa hoa, còn cậu chính là đóa hoa rạng rỡ và đặc biệt nhất trong lòng tớ.\n\nNhân ngày 20/10, chúc cậu luôn nở nụ cười thật tươi trên môi, bình an đi qua những âu lo và luôn tự tin tỏa sáng rực rỡ theo cách riêng của mình nhé!"
+            },
+            {
+                title: "Cậu biết không,<br>cậu tuyệt vời<br>lắm đấy!",
+                body: "Hôm nay là ngày của riêng một nửa thế giới, và tớ muốn dành trọn những lời chúc ngọt ngào nhất cho cậu.\n\nCảm ơn cậu vì đã xuất hiện mang theo bao nhiêu niềm vui. Chúc cậu 20/10 ngập tràn hạnh phúc, luôn được yêu thương và nâng niu như một nàng công chúa!"
+            },
+            {
+                title: "Chúc cậu<br>một đời an yên,<br>mãi luôn xinh đẹp.",
+                body: "Thanh xuân ngắn lắm, mong cậu hãy cứ mỉm cười thật tươi, làm những điều mình thích và đi đến những nơi mình muốn.\n\nNgày 20/10 chúc cậu mọi điều suôn sẻ, luôn kiêu hãnh, rạng rỡ và mãi là cô gái hạnh phúc nhất nha!"
+            },
+            {
+                title: "Thế giới này<br>dịu dàng hơn<br>vì có cậu.",
+                body: "Mỗi đóa hoa nở ra đều mang một vẻ đẹp riêng, giống như cách cậu bước vào cuộc đời này và mang lại sự ấm áp cho những người xung quanh.\n\nChúc cậu ngày 20/10 nhận được thật nhiều hoa, nhiều quà và ngập tràn những điều ngọt ngào nhất!"
+            }
+        ];
+
+        const pContainer = document.getElementById('particles');
+        for(let i=0; i<40; i++) {
+            let p = document.createElement('div');
+            p.classList.add('particle');
+            let size = Math.random() * 6 + 3;
+            p.style.width = size + 'px';
+            p.style.height = size + 'px';
+            p.style.left = Math.random() * 100 + 'vw';
+            p.style.animationDuration = Math.random() * 8 + 6 + 's';
+            p.style.animationDelay = Math.random() * 5 + 's';
+            pContainer.appendChild(p);
+        }
+
+        function enterGarden() {
+            if(!isSoundOn) toggleSound();
+            startAmbientSound();
+            
+            const scene1 = document.getElementById('scene-1');
+            const scene2 = document.getElementById('scene-2');
+            
+            scene1.style.transform = 'translateY(-50vh) scale(0.5)';
+            scene1.style.opacity = '0';
+            
+            setTimeout(() => {
+                scene1.style.display = 'none';
+                scene2.style.display = 'block';
+                
+                requestAnimationFrame(() => {
+                    scene2.style.opacity = '1';
+                    document.getElementById('garden-text').style.animation = 'fadeIn 1.5s forwards 0.5s';
+                    growMassiveGarden();
+                });
+            }, 800);
+        }
+
+        function growMassiveGarden() {
+            const container = document.getElementById('garden-container');
+            const flowerTypes = ['#svg-rose', '#svg-tulip', '#svg-daisy'];
+            const numFlowers = window.innerWidth < 600 ? 120 : 250;
+
+            for(let i = 0; i < numFlowers; i++) {
+                let svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                let use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+                
+                let type = flowerTypes[Math.floor(Math.random() * flowerTypes.length)];
+                use.setAttribute("href", type);
+                svg.appendChild(use);
+                svg.classList.add('flower-item');
+                
+                let depth = Math.random(); 
+                let size = depth * (window.innerWidth < 600 ? 40 : 60) + 30; 
+                svg.style.width = size + 'px';
+                svg.style.height = (size * 2) + 'px'; 
+                svg.setAttribute("viewBox", "0 0 100 200");
+                
+                svg.style.left = Math.random() * 98 + 'vw';
+                svg.style.zIndex = Math.floor(depth * 100);
+                svg.style.bottom = `${(depth * -40) + 10}px`; 
+                
+                let brightness = 0.6 + (depth * 0.4);
+                svg.style.filter = `brightness(${brightness})`;
+
+                let delay = i * 0.02;
+                let swaySpeed = Math.random() * 2 + 3;
+                
+                svg.style.animation = `bloom 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) ${delay}s forwards, sway ${swaySpeed}s ease-in-out infinite alternate ${delay+1}s`;
+                
+                setTimeout(() => {
+                    if(isSoundOn && i % 4 === 0) playRandomChime();
+                }, (delay + 0.8) * 1000);
+                
+                svg.onclick = openCard;
+                container.appendChild(svg);
+            }
+        }
+
+        let currentText = "";
+        let charIndex = 0;
+        let isTyping = false;
+
+        function openCard() {
+            if(isTyping) return; 
+            if(isSoundOn) playRandomChime();
+
+            const randomMsg = greetingsList[Math.floor(Math.random() * greetingsList.length)];
+            
+            document.getElementById('m-title').innerHTML = randomMsg.title;
+            document.getElementById('m-body').innerHTML = ""; 
+            document.getElementById('m-footer').style.opacity = '0';
+            document.getElementById('m-sign').style.opacity = '0';
+            document.getElementById('btn-group').style.opacity = '0';
+            document.getElementById('btn-group').style.pointerEvents = 'none';
+            document.getElementById('m-title').style.animation = 'none';
+
+            currentText = randomMsg.body;
+            charIndex = 0;
+
+            document.getElementById('backdrop').style.display = 'block';
+            document.getElementById('message-card').style.display = 'block';
+            
+            setTimeout(() => {
+                document.getElementById('backdrop').style.opacity = '1';
+                document.getElementById('message-card').style.opacity = '1';
+                document.getElementById('message-card').style.transform = 'translate(-50%, -50%) scale(1)';
+                
+                setTimeout(() => {
+                    document.getElementById('m-title').style.animation = 'fadeIn 1s forwards';
+                    isTyping = true;
+                    typeWriter();
+                }, 600);
+            }, 50);
+        }
+
+        function typeWriter() {
+            if (charIndex < currentText.length) {
+                let char = currentText.charAt(charIndex);
+                let htmlTarget = document.getElementById("m-body");
+                
+                if(char === '\n') {
+                    htmlTarget.innerHTML += "<br>";
+                } else {
+                    htmlTarget.innerHTML += char;
+                }
+                
+                if (charIndex % 4 === 0) playTypingSound();
+
+                charIndex++;
+                setTimeout(typeWriter, Math.random() * 20 + 15); 
+            } else {
+                isTyping = false;
+                document.getElementById('m-footer').style.animation = 'fadeIn 1s forwards';
+                document.getElementById('m-sign').style.animation = 'fadeIn 1s forwards 0.5s';
+                
+                setTimeout(() => {
+                    const btnGroup = document.getElementById('btn-group');
+                    btnGroup.style.pointerEvents = 'auto';
+                    btnGroup.style.opacity = '1';
+                }, 1000);
+            }
+        }
+
+        const btnRunaway = document.getElementById('btn-runaway');
+
+        function moveButtonSafely(e) {
+            const safeWidth = window.innerWidth - btnRunaway.offsetWidth - 20;
+            const safeHeight = window.innerHeight - btnRunaway.offsetHeight - 20;
+
+            const newX = Math.max(10, Math.floor(Math.random() * safeWidth));
+            const newY = Math.max(10, Math.floor(Math.random() * safeHeight));
+
+            btnRunaway.style.position = 'fixed';
+            btnRunaway.style.left = newX + 'px';
+            btnRunaway.style.top = newY + 'px';
+            btnRunaway.style.bottom = 'auto'; 
+            btnRunaway.style.transition = 'all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+            
+            if(isSoundOn) playRandomChime();
+
+            if(e) e.preventDefault(); 
+        }
+
+        btnRunaway.addEventListener('mouseover', moveButtonSafely);
+        btnRunaway.addEventListener('touchstart', moveButtonSafely, {passive: false});
+
+        function acceptGift() {
+            alert("Đã nhận thiệp thành công! Bạn có thể nhấn vào một bông hoa khác để nhận thêm những bất ngờ khác nhé 🥰💐");
+            if(isSoundOn) playRandomChime();
+
+            document.getElementById('backdrop').style.opacity = '0';
+            document.getElementById('message-card').style.opacity = '0';
+            document.getElementById('btn-group').style.opacity = '0';
+            
+            setTimeout(() => {
+                document.getElementById('backdrop').style.display = 'none';
+                document.getElementById('message-card').style.display = 'none';
+                btnRunaway.style.position = 'relative';
+                btnRunaway.style.left = 'auto';
+                btnRunaway.style.top = 'auto';
+            }, 600);
+        }
+    </script>
+</body>
+</html>
